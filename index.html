@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da1chi Scraper V1</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #040811;
+            color: #ffffff;
+            font-family: 'Rajdhani', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background: linear-gradient(180deg, #091429 0%, #040811 100%);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        
+        .screen {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.5s ease-in-out;
+            flex: 1;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .profile-pic-container {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            margin: 40px auto 25px;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(135deg, #00d2ff, #004d80);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+        }
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #060b14;
+        }
+        .orbit {
+            position: absolute;
+            top: -12px; left: -12px; right: -12px; bottom: -12px;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 50%;
+            animation: spin 3s linear infinite;
+        }
+        .orbit::before {
+            content: '';
+            position: absolute;
+            top: 15px; left: 5px;
+            width: 10px; height: 10px;
+            background-color: #00d2ff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #00d2ff;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-style: italic;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            font-size: 12px;
+            color: #0088cc;
+            letter-spacing: 3px;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        .loading-text {
+            font-size: 12px;
+            color: #4a6b8c;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            margin-top: auto;
+        }
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background-color: #1a2a40;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #00d2ff;
+            box-shadow: 0 0 10px #00d2ff;
+            transition: width 0.1s linear;
+        }
+        .loading-percent {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            color: #00d2ff;
+            margin-bottom: 5px;
+        }
+        .loading-sub {
+            font-size: 11px;
+            color: #4a6b8c;
+            margin-bottom: 50px;
+        }
+
+        .gate-box {
+            width: 100%;
+            border: 1px solid #004d80;
+            border-radius: 20px;
+            padding: 30px 20px;
+            background-color: rgba(9, 20, 41, 0.8);
+            text-align: center;
+        }
+        .lock-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        .gate-desc {
+            font-size: 14px;
+            color: #8ab4f8;
+            margin-bottom: 25px;
+        }
+        .ch-card {
+            background-color: #0a1f35;
+            border: 1px solid #10b981;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .ch-icon {
+            width: 40px; height: 40px;
+            background-color: #10b981;
+            border-radius: 10px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 20px; margin-right: 15px;
+        }
+        .ch-text { text-align: left; }
+        .ch-title { font-weight: bold; font-size: 15px; }
+        .ch-sub { font-size: 11px; color: #10b981; }
+        
+        .btn-follow {
+            width: 100%; padding: 15px;
+            background: linear-gradient(90deg, #10b981, #059669);
+            border: none; border-radius: 10px;
+            color: white; font-family: 'Orbitron', sans-serif;
+            font-size: 14px; letter-spacing: 1px;
+            cursor: pointer; margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+        .btn-enter {
+            width: 100%; padding: 15px;
+            background-color: transparent;
+            border: 1px solid #1a2a40; border-radius: 10px;
+            color: #4a6b8c; font-family: 'Orbitron', sans-serif;
+            font-size: 12px; cursor: pointer; transition: 0.3s;
+        }
+        .btn-enter:hover, .btn-enter.ready {
+            border-color: #00d2ff; color: #00d2ff;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+        }
+
+        .input-group { width: 100%; margin-bottom: 15px; }
+        input[type="url"], input[type="text"] {
+            width: 100%; padding: 15px;
+            background-color: rgba(0, 20, 40, 0.5);
+            border: 1px solid #004d80; border-radius: 10px;
+            color: #00d2ff; font-size: 14px; font-family: 'Rajdhani', sans-serif;
+            outline: none;
+        }
+        input::placeholder { color: rgba(0, 210, 255, 0.3); }
+        
+        .mode-selector {
+            display: flex; gap: 10px; width: 100%; margin-bottom: 20px;
+        }
+        .mode-btn {
+            flex: 1; padding: 12px;
+            background-color: rgba(0, 20, 40, 0.5);
+            border: 1px solid #004d80; border-radius: 10px;
+            color: #4a6b8c; font-family: 'Orbitron', sans-serif;
+            cursor: pointer; transition: 0.3s;
+        }
+        .mode-btn.active {
+            border-color: #00d2ff; color: #00d2ff;
+            background-color: rgba(0, 210, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.2) inset;
+        }
+
+        .btn-deploy {
+            width: 100%; padding: 15px;
+            background-color: transparent;
+            border: 1px solid #00d2ff; border-radius: 10px;
+            color: #ffffff; font-family: 'Orbitron', sans-serif;
+            font-size: 16px; font-weight: bold; letter-spacing: 2px;
+            cursor: pointer; transition: 0.3s; margin-bottom: 20px;
+        }
+        .btn-deploy:hover {
+            background-color: rgba(0, 210, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.4) inset;
+        }
+
+        .output-box {
+            width: 100%; flex: 1;
+            background-color: rgba(0, 30, 50, 0.3);
+            border: 1px solid #003355; border-radius: 10px;
+            padding: 15px; font-size: 13px; color: #e0e0e0;
+            overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;
+            margin-bottom: 20px; max-height: 250px;
+        }
+
+        .status-bar {
+            width: 100%; display: flex; justify-content: space-between;
+            border-top: 1px solid #1a2a40; padding-top: 15px; margin-top: auto;
+        }
+        .status-item {
+            display: flex; flex-direction: column; align-items: center;
+            font-size: 10px; color: #4a6b8c;
+            border: 1px solid #1a2a40; border-radius: 8px; padding: 5px 10px;
+            flex: 1; margin: 0 3px;
+        }
+        .s-blue { color: #00d2ff; border-color: rgba(0, 210, 255, 0.3); }
+        .s-green { color: #10b981; border-color: rgba(16, 185, 129, 0.3); }
+        .s-yellow { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); }
+        .s-red { color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <div id="screen-loading" class="screen active">
+        <div class="profile-pic-container">
+            <div class="orbit"></div>
+            <img src="https://b.top4top.io/p_3761d8atg1.jpg" alt="Profile" class="profile-pic">
+        </div>
+        <h1>DA1CHI SCRAPE V1</h1>
+        <div class="subtitle">Web Scraper• BY FATE/Da1chi</div>
+
+        <div style="flex: 1;"></div> <div class="loading-text">
+            <span>Da1chi code</span>
+            <span id="progress-percent-small">0%</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="loading-percent" id="progress-percent-large">0%</div>
+        <div class="loading-sub">DA1CHI Code</div>
+    </div>
+
+    <div id="screen-gate" class="screen">
+        <div class="gate-box">
+            <div class="lock-icon">🔒</div>
+            <h1>Da1chi Scrape V1</h1>
+            <div class="gate-desc">
+                Follow For Acces <b>Da1chi SCRAPER V1</b>,<br>biar gw untung dikit lah.
+            </div>
+
+            <div class="ch-card">
+                <div class="ch-icon">📢</div>
+                <div class="ch-text">
+                    <div class="ch-title">Fate De Destino</div>
+                    <div class="ch-sub">my saluran</div>
+                </div>
+            </div>
+
+            <button class="btn-follow" onclick="followChannel()">📲 FOLLOW CHANNEL</button>
+            <button class="btn-enter" id="btn-enter" onclick="enterApp()">Sudah Follow ? silahkan dipakai</button>
+        </div>
+    </div>
+
+    <div id="screen-main" class="screen">
+        <div class="profile-pic-container" style="margin: 10px auto 15px; width: 80px; height: 80px;">
+            <div class="orbit"></div>
+            <img src="https://b.top4top.io/p_3761d8atg1.jpg" alt="Profile" class="profile-pic">
+        </div>
+        <h1 style="font-size: 22px;">DA1CHI SCRAPER V1</h1>
+        
+        <div class="input-group">
+            <input type="url" id="urlInput" placeholder="Masukkan URL Target (https://...)">
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" id="btn-html" onclick="setMode('HTML')">HTML</button>
+            <button class="mode-btn" id="btn-python" onclick="setMode('PYTHON')">Python</button>
+        </div>
+
+        <button class="btn-deploy" id="deployBtn" onclick="deployScraper()">Take Code</button>
+
+        <div class="output-box" id="output">
+            <span style="color: rgba(0,210,255,0.3); font-style: italic;">lu gk mungkin bisa dapetin dia, jadi mending ambil sourcecode aja 😹</span>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item s-blue">Jumlah scrape<br><b>0</b></div>
+            <div class="status-item s-blue">Pemakaian<br><b>0</b></div>
+            <div class="status-item s-green">Aman<br><b id="stat-ok">0</b></div>
+            <div class="status-item s-yellow">Proxi<br><b>1</b></div>
+            <div class="status-item s-red">Gagal<br><b id="stat-fail">0</b></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 'HTML';
+    let hasFollowed = false;
+    let statOk = 0;
+    let statFail = 0;
+
+    function switchScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    window.onload = () => {
+        let progress = 0;
+        const bar = document.getElementById('progress-bar');
+        const textSmall = document.getElementById('progress-percent-small');
+        const textLarge = document.getElementById('progress-percent-large');
+
+        const interval = setInterval(() => {
+            progress += Math.floor(Math.random() * 5) + 1; 
+            if (progress >= 100) progress = 100;
+
+            bar.style.width = progress + '%';
+            textSmall.innerText = progress + '%';
+            textLarge.innerText = progress + '%';
+
+            if (progress === 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    switchScreen('screen-gate');
+                }, 500);
+            }
+        }, 80);
+    };
+
+    function followChannel() {
+        window.open('https://whatsapp.com/channel/0029VbCk2Il23n3glAUx7k2n', '_blank');
+        hasFollowed = true;
+        const btnEnter = document.getElementById('btn-enter');
+        btnEnter.classList.add('ready');
+        btnEnter.innerText = "Akses Terbuka - Masuk";
+    }
+
+    function enterApp() {
+        if (!hasFollowed) {
+            alert("Mau Boong lu rek ?, foll dlu mas");
+            return;
+        }
+        switchScreen('screen-main');
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('btn-html').classList.remove('active');
+        document.getElementById('btn-python').classList.remove('active');
+        
+        if (mode === 'HTML') document.getElementById('btn-html').classList.add('active');
+        if (mode === 'PYTHON') document.getElementById('btn-python').classList.add('active');
+    }
+
+    async function deployScraper() {
+        const urlInput = document.getElementById('urlInput').value.trim();
+        const outputElement = document.getElementById('output');
+        const btn = document.getElementById('deployBtn');
+
+        if (!urlInput) {
+            outputElement.innerHTML = '<span style="color: #ef4444;">[!] Error: URL Target tidak boleh kosong.</span>';
+            return;
+        }
+
+        let aiPrompt = "";
+        if (currentMode === 'HTML') {
+            aiPrompt = `Tolong buatkan atau berikan struktur HTML yang bisa mengekstrak data dari website berikut: ${urlInput}`;
+        } else {
+            aiPrompt = `Buatkan script Python (menggunakan requests dan BeautifulSoup) untuk melakukan scraping pada URL berikut: ${urlInput}`;
+        }
+
+        outputElement.innerHTML = '<span style="color: #00d2ff; animation: blink 1s infinite;">[~] Executing payload via CORS proxy...<br>[~] Menghubungi Claude API...</span>';
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.innerText = 'DEPLOYING...';
+
+        try {
+            const encodedQuery = encodeURIComponent(aiPrompt);
+            const apiUrl = `https://apis.snowping.eu.cc/api/aichat/aiclaude?q=${encodedQuery}`;
+            
+            const response = await fetch(apiUrl);
+            
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            const data = await response.json();
+            let finalAnswer = "";
+
+            if (data.data) finalAnswer = data.data;
+            else if (data.result) finalAnswer = data.result;
+            else if (data.answer) finalAnswer = data.answer;
+            else if (data.message) finalAnswer = data.message;
+            else {
+                delete data.status; delete data.creator; delete data.responseTime; delete data.sesskey;
+                for (let key in data) {
+                    if (typeof data[key] === 'string') {
+                        finalAnswer = data[key]; break; 
+                    }
+                }
+            }
+
+            if(!finalAnswer) finalAnswer = "zero output";
+
+            outputElement.textContent = finalAnswer;
+            
+            // Update stat
+            statOk++;
+            document.getElementById('stat-ok').innerText = statOk;
+
+        } catch (error) {
+            outputElement.innerHTML = `<span style="color: #ef4444;">[!] DEPLOY FAIL: ${error.message}<br>Target URL mungkin memblokir proxy atau API sedang offline.</span>`;
+            statFail++;
+            document.getElementById('stat-fail').innerText = statFail;
+        } finally {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.innerText = 'DEPLOY';
+        }
+    }
+</script>
+</body>
+</html>

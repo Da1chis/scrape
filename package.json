@@ -1,0 +1,11 @@
+{
+  "name": "Da1chi-scraper-v1",
+  "version": "1.0.0",
+  "description": "Mengambil Sourcecode dengan Api Claude(gw g ad duit buat firecrawl)",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve ."
+  },
+  "author": "User",
+  "license": "MIT"
+}
